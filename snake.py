@@ -1,10 +1,13 @@
-import pygame
+'''My Snake Game'''
 import sys
 import random
+import pygame
 from pygame.math import Vector2
 
 
 class SNAKE:
+    '''Snake Class'''
+
     def __init__(self):
         self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
         self.direction = Vector2(0, 0)
@@ -44,6 +47,7 @@ class SNAKE:
         self.crunch_sound = pygame.mixer.Sound('Sound/crunch.wav')
 
     def draw_snake(self):
+        '''Snake Body Drawing'''
         self.update_head_graphics()
         self.update_tail_graphics()
 
@@ -74,6 +78,7 @@ class SNAKE:
                         screen.blit(self.body_br, block_rect)
 
     def update_head_graphics(self):
+        '''Update Snake Head'''
         head_relation = self.body[1] - self.body[0]
         if head_relation == Vector2(1, 0):
             self.head = self.head_left
@@ -85,6 +90,7 @@ class SNAKE:
             self.head = self.head_down
 
     def update_tail_graphics(self):
+        '''Update Snake Tail'''
         tail_relation = self.body[-2] - self.body[-1]
         if tail_relation == Vector2(1, 0):
             self.tail = self.tail_left
@@ -96,7 +102,8 @@ class SNAKE:
             self.tail = self.tail_down
 
     def move_snake(self):
-        if self.new_block == True:
+        '''Movement function'''
+        if self.new_block is True:
             body_copy = self.body[:]
             body_copy.insert(0, body_copy[0] + self.direction)
             self.body = body_copy[:]
@@ -107,49 +114,61 @@ class SNAKE:
             self.body = body_copy[:]
 
     def add_block(self):
+        '''adding a block'''
         self.new_block = True
 
     def play_crunch_sound(self):
+        '''sfx'''
         self.crunch_sound.play()
 
     def reset(self):
+        '''reset the state'''
         self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
         self.direction = Vector2(0, 0)
 
 
 class FRUIT:
+    '''make a FRUIT'''
+
     def __init__(self):
         self.randomize()
 
     def draw_fruit(self):
+        '''drawing the fruit'''
         fruit_rect = pygame.Rect(
             int(self.pos.x * cell_size), int(self.pos.y * cell_size), cell_size, cell_size)
         screen.blit(apple, fruit_rect)
         # pygame.draw.rect(screen,(126,166,114),fruit_rect)
 
     def randomize(self):
+        '''randomize position'''
         self.x = random.randint(0, cell_number - 1)
         self.y = random.randint(0, cell_number - 1)
         self.pos = Vector2(self.x, self.y)
 
 
 class MAIN:
+    '''Main class'''
+
     def __init__(self):
         self.snake = SNAKE()
         self.fruit = FRUIT()
 
     def update(self):
+        '''update position'''
         self.snake.move_snake()
         self.check_collision()
         self.check_fail()
 
     def draw_elements(self):
+        '''draw elements'''
         self.draw_grass()
         self.fruit.draw_fruit()
         self.snake.draw_snake()
         self.draw_score()
 
     def check_collision(self):
+        '''check for collision'''
         if self.fruit.pos == self.snake.body[0]:
             self.fruit.randomize()
             self.snake.add_block()
@@ -160,6 +179,7 @@ class MAIN:
                 self.fruit.randomize()
 
     def check_fail(self):
+        '''checks if the game is over'''
         if not 0 <= self.snake.body[0].x < cell_number or not 0 <= self.snake.body[0].y < cell_number:
             self.game_over()
 
@@ -168,9 +188,11 @@ class MAIN:
                 self.game_over()
 
     def game_over(self):
+        '''reset if game over'''
         self.snake.reset()
 
     def draw_grass(self):
+        '''draw the background'''
         grass_color = (167, 209, 61)
         for row in range(cell_number):
             if row % 2 == 0:
@@ -187,6 +209,7 @@ class MAIN:
                         pygame.draw.rect(screen, grass_color, grass_rect)
 
     def draw_score(self):
+        '''show the score'''
         score_text = str(len(self.snake.body) - 3)
         score_surface = game_font.render(score_text, True, (56, 74, 12))
         score_x = int(cell_size * cell_number - 60)
